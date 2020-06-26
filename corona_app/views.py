@@ -347,34 +347,34 @@ class todosreportesAPI(ListView):
         for i in range(5, ancho):
             for j in range(1, largo):
 
-                if len(df[i][j]) is 0:
-                    dato = 0
-                else:
-                    dato = df[i][j]
+                if len(df[3][j]) is not 0:
+                    if len(df[i][j]) is 0:
+                        dato = 0
+                    else:
+                        dato = df[i][j]
+                    try:
+                        actives = activesCase.objects.get(
+                            AcCod_comuna=df[3][j], AcDate=df[i][0]).AcCantidad
+                    except activesCase.DoesNotExist:
+                        actives = float(0)
 
-                try:
-                    actives = activesCase.objects.get(
-                        AcCod_comuna=df[3][j], AcDate=df[i][0]).AcCantidad
-                except activesCase.DoesNotExist:
-                    actives = float(0)
+                    try:
+                        recovered = activesCase.objects.get(
+                            AcCod_comuna=df[3][j], AcDate=df[i][0]).AcCantidad - float(dato)
+                    except activesCase.DoesNotExist:
+                        recovered = float(0)
 
-                try:
-                    recovered = activesCase.objects.get(
-                        AcCod_comuna=df[3][j], AcDate=df[i][0]).AcCantidad - float(dato)
-                except activesCase.DoesNotExist:
-                    recovered = float(0)
+                    _, created = RRDate.objects.get_or_create(
+                        # id = UuidCreate(),
+                        RDDate=df[i][0])
 
-                _, created = RRDate.objects.get_or_create(
-                    # id = UuidCreate(),
-                    RDDate=df[i][0])
-
-                _, created = reportes.objects.get_or_create(
-                    RDate=df[i][0],
-                    RComuna=comuna.objects.get(CodComuna=df[3][j]),
-                    RConfirmed=float(dato),
-                    RActive=float(actives),
-                    RRecovered=abs(recovered),
-                )
+                    _, created = reportes.objects.get_or_create(
+                        RDate=df[i][0],
+                        RComuna=comuna.objects.get(CodComuna=df[3][j]),
+                        RConfirmed=float(dato),
+                        RActive=float(actives),
+                        RRecovered=abs(recovered),
+                    )
 
         context = {}
         return context
